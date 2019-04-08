@@ -17,6 +17,7 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -150,10 +151,10 @@ namespace RedmineApi.Core
         {
             SetHeaders();
 
-            httpClient.AddContentType("application/octet-stream");
-
             var content = new ByteArrayContent(bytes);
-            using (var responseMessage = await httpClient.PutAsync(uri.ToString(), content, cancellationToken).ConfigureAwait(false))
+            content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
+
+            using (var responseMessage = await httpClient.PostAsync(uri.ToString(), content, cancellationToken).ConfigureAwait(false))
             {
                 var tc = await responseMessage.CreateTaskCompletionSource<Upload>(serializer).ConfigureAwait(false);
                 return await tc.Task;
